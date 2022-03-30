@@ -1,0 +1,33 @@
+version: "3"
+services:
+  db:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - db_data:/data/db
+  server:
+    build: ./server
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+    environment:
+      - API_PORT=3001
+      - MONGODB_CONNECTION_STRING=mongodb://db:27017/isp
+      - CORS=*
+      - OAUTH2_SECRET=supersecretsecret
+      - ADMIN_PW=admin
+  client:
+    build: ./client
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+volumes:
+  db_data:
